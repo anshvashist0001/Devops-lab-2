@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: web-service
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=redis-db
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-db
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
