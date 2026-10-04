@@ -1,0 +1,6 @@
+screenshots/
+*.pdf
+*.docx
+*.zip
+__pycache__/
+.venv/

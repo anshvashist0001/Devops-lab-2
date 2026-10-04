@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -10,7 +8,8 @@ services:
       - REDIS_HOST=redis-db
       - REDIS_PORT=6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     networks:
       - app-network
     restart: always
@@ -18,8 +17,12 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis-db
-    ports:
-      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - redis-data:/data
     networks:

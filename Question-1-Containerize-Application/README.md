@@ -1,34 +1,44 @@
-# Task 1: Containerize a Sample Application Using Docker (5 Marks)
+# Exercise 1: containerize Flask
 
-## 📌 Overview
-This directory contains the complete solution for **Question 1**:
-- Containerizing a Python Flask web application.
-- Optimized multi-layer `Dockerfile` with layer caching.
-- Documenting image layer hierarchy via `docker history`.
-- Documenting container runtime behavior and resource monitoring.
+This service exposes `/` with a JSON message, container hostname and UTC timestamp,
+and `/health` with a 200 status. The Dockerfile copies dependencies before source
+so an application-only edit can reuse the dependency-install layer.
 
-## 🚀 Commands
+## Build and run
+
+From this directory, with Docker running:
+
 ```bash
-# 1. Build the Docker Image
 docker build -t flask-sample-app:1.0 .
-
-# 2. Run Container (Detached mode with port 5000 mapping)
 docker run -d -p 5000:5000 --name my-flask-container flask-sample-app:1.0
-
-# 3. Test Application Response
 curl http://localhost:5000/
-curl http://localhost:5000/health
-
-# 4. Inspect Image Layers
-docker history flask-sample-app:1.0
-
-# 5. Inspect Container Runtime Behavior & Stats
+curl -i http://localhost:5000/health
 docker logs my-flask-container
 docker stats my-flask-container --no-stream
+docker history flask-sample-app:1.0
 ```
 
-## 📸 Screenshots Included
-- `screenshots/01_docker_build.png`: Build step execution and layer export.
-- `screenshots/02_docker_run_and_test.png`: Detached container execution and `curl` JSON response.
-- `screenshots/03_image_layers_history.png`: Layer composition via `docker history`.
-- `screenshots/04_container_logs_and_stats.png`: Runtime logs and resource metrics.
+The hostname should match the running container's hostname. The timestamp changes
+between requests. On Windows PowerShell, use `curl.exe` if `curl` resolves to a
+PowerShell alias.
+
+## Inspect and clean up
+
+```bash
+docker inspect my-flask-container
+docker stop my-flask-container
+docker rm my-flask-container
+```
+
+Remove the image with `docker rmi flask-sample-app:1.0` when you no longer need it.
+If the container name is already taken, remove the old lab container first.
+
+## Files and scope
+
+`app.py` contains the service; `requirements.txt` pins Flask; `Dockerfile` defines
+the Python 3.11 image. `.dockerignore` keeps reports and screenshots out of the
+build context. The accompanying reports are historical and unverified; see the
+[repository README](../README.md).
+
+This is a single-stage, layer-cached Dockerfile. Flask's development server is
+appropriate for this local exercise, not a production serving configuration.
